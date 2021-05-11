@@ -8,11 +8,12 @@
 
 #include "task.hpp"
 
-#include <asn/ngap/ASN_NGAP_QosFlowSetupRequestItem.h>
-#include <gnb/mr/task.hpp>
 #include <gnb/gtp/proto.hpp>
+#include <gnb/rls/task.hpp>
 #include <utils/constants.hpp>
 #include <utils/libc_error.hpp>
+
+#include <asn/ngap/ASN_NGAP_QosFlowSetupRequestItem.h>
 
 namespace nr::gnb
 {
@@ -61,23 +62,27 @@ void GtpTask::onLoop()
             handleUeContextUpdate(*w->update);
             break;
         }
+        case NwGnbNgapToGtp::UE_CONTEXT_RELEASE: {
+            handleUeContextDelete(w->ueId);
+            break;
+        }
         case NwGnbNgapToGtp::SESSION_CREATE: {
             handleSessionCreate(w->resource);
             break;
         }
-        case NwGnbNgapToGtp::UE_CONTEXT_RELEASE: {
-            handleUeContextDelete(w->ueId);
+        case NwGnbNgapToGtp::SESSION_RELEASE: {
+            handleSessionRelease(w->ueId, w->psi);
             break;
         }
         }
         break;
     }
-    case NtsMessageType::GNB_MR_TO_GTP: {
-        auto *w = dynamic_cast<NwGnbMrToGtp *>(msg);
+    case NtsMessageType::GNB_RLS_TO_GTP: {
+        auto *w = dynamic_cast<NwGnbRlsToGtp *>(msg);
         switch (w->present)
         {
-        case NwGnbMrToGtp::UPLINK_DELIVERY: {
-            handleUplinkData(w->ueId, w->pduSessionId, std::move(w->data));
+        case NwGnbRlsToGtp::DATA_PDU_DELIVERY: {
+            handleUplinkData(w->ueId, w->psi, std::move(w->pdu));
             break;
         }
         }
@@ -122,6 +127,28 @@ void GtpTask::handleSessionCreate(PduSessionResource *session)
     updateAmbrForSession(sessionInd);
 }
 
+void GtpTask::handleSessionRelease(int ueId, int psi)
+{
+    if (!m_ueContexts.count(ueId))
+    {
+        m_logger->err("PDU session resource could not be released, UE context with ID[%d] not found", ueId);
+        return;
+    }
+
+    uint64_t sessionInd = MakeSessionResInd(ueId, psi);
+
+    // Remove all session information from rate limiter
+    m_rateLimiter->updateSessionUplinkLimit(sessionInd, 0);
+    m_rateLimiter->updateUeDownlinkLimit(ueId, 0);
+
+    // And remove from PDU session table
+    uint32_t teid = m_pduSessions[sessionInd]->downTunnel.teid;
+    m_pduSessions.erase(sessionInd);
+
+    // And remove from the tree
+    m_sessionTree.remove(sessionInd, teid);
+}
+
 void GtpTask::handleUeContextDelete(int ueId)
 {
     // Find PDU sessions of the UE
@@ -132,10 +159,10 @@ void GtpTask::handleUeContextDelete(int ueId)
     {
         // Remove all session information from rate limiter
         m_rateLimiter->updateSessionUplinkLimit(session, 0);
-        m_rateLimiter->updateUeDownlinkLimit(session, 0);
+        m_rateLimiter->updateUeDownlinkLimit(ueId, 0);
 
         // And remove from PDU session table
-        int teid = m_pduSessions[session]->downTunnel.teid;
+        uint32_t teid = m_pduSessions[session]->downTunnel.teid;
         m_pduSessions.erase(session);
 
         // And remove from the tree
@@ -162,7 +189,7 @@ void GtpTask::handleUplinkData(int ueId, int psi, OctetString &&pdu)
 
     if (!m_pduSessions.count(sessionInd))
     {
-        m_logger->err("Uplink data failure, PDU session not found. ueId%d PSI: %d", ueId, psi);
+        m_logger->err("Uplink data failure, PDU session not found. UE[%d] PSI[%d]", ueId, psi);
         return;
     }
 
@@ -213,11 +240,11 @@ void GtpTask::handleUdpReceive(const udp::NwUdpServerReceive &msg)
 
     if (m_rateLimiter->allowDownlinkPacket(sessionInd, gtp->payload.length()))
     {
-        auto *w = new NwGnbGtpToMr(NwGnbGtpToMr::DATA_PDU_DELIVERY);
+        auto *w = new NwGnbGtpToRls(NwGnbGtpToRls::DATA_PDU_DELIVERY);
         w->ueId = GetUeId(sessionInd);
-        w->pduSessionId = GetPsi(sessionInd);
-        w->data = std::move(gtp->payload);
-        m_base->mrTask->push(w);
+        w->psi = GetPsi(sessionInd);
+        w->pdu = std::move(gtp->payload);
+        m_base->rlsTask->push(w);
     }
 
     delete gtp;

@@ -10,6 +10,7 @@
 #include "utils.hpp"
 
 #include <algorithm>
+
 #include <gnb/app/task.hpp>
 #include <gnb/rrc/task.hpp>
 #include <gnb/sctp/task.hpp>
@@ -198,7 +199,7 @@ void NgapTask::receiveNgSetupResponse(int amfId, ASN_NGAP_NGSetupResponse *msg)
         update->isNgapUp = true;
         m_base->appTask->push(update);
 
-        m_base->rrcTask->push(new NwGnbNgapToRrc(NwGnbNgapToRrc::NGAP_LAYER_INITIALIZED));
+        m_base->rrcTask->push(new NwGnbNgapToRrc(NwGnbNgapToRrc::RADIO_POWER_ON));
     }
 }
 
@@ -241,8 +242,8 @@ void NgapTask::sendErrorIndication(int amfId, NgapCause cause, int ueId)
     ieCause->value.present = ASN_NGAP_ErrorIndicationIEs__value_PR_Cause;
     ngap_utils::ToCauseAsn_Ref(cause, ieCause->value.choice.Cause);
 
-    m_logger->debug("Sending an error indication with cause: %s",
-                    ngap_utils::CauseToString(ieCause->value.choice.Cause).c_str());
+    m_logger->warn("Sending an error indication with cause: %s",
+                   ngap_utils::CauseToString(ieCause->value.choice.Cause).c_str());
 
     auto *pdu = asn::ngap::NewMessagePdu<ASN_NGAP_ErrorIndication>({ieCause});
 

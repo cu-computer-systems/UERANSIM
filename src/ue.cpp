@@ -6,15 +6,17 @@
 // and subject to the terms and conditions defined in LICENSE file.
 //
 
-#include <app/base_app.hpp>
-#include <app/cli_base.hpp>
-#include <app/cli_cmd.hpp>
-#include <app/proc_table.hpp>
-#include <app/ue_ctl.hpp>
 #include <iostream>
 #include <stdexcept>
-#include <ue/ue.hpp>
+
 #include <unistd.h>
+
+#include <lib/app/base_app.hpp>
+#include <lib/app/cli_base.hpp>
+#include <lib/app/cli_cmd.hpp>
+#include <lib/app/proc_table.hpp>
+#include <lib/app/ue_ctl.hpp>
+#include <ue/ue.hpp>
 #include <utils/common.hpp>
 #include <utils/concurrent_map.hpp>
 #include <utils/constants.hpp>
@@ -113,9 +115,9 @@ static nr::ue::UeConfig *ReadConfigYaml()
         for (auto &sNssai : yaml::GetSequence(config, "default-nssai"))
         {
             SingleSlice s{};
-            s.sst = yaml::GetInt32(sNssai, "sst", 1, 0xFF);
+            s.sst = yaml::GetInt32(sNssai, "sst", 0, 0xFF);
             if (yaml::HasField(sNssai, "sd"))
-                s.sd = octet3{yaml::GetInt32(sNssai, "sd", 1, 0xFFFFFF)};
+                s.sd = octet3{yaml::GetInt32(sNssai, "sd", 0, 0xFFFFFF)};
             result->initials.defaultConfiguredNssai.slices.push_back(s);
         }
     }
@@ -125,9 +127,9 @@ static nr::ue::UeConfig *ReadConfigYaml()
         for (auto &sNssai : yaml::GetSequence(config, "configured-nssai"))
         {
             SingleSlice s{};
-            s.sst = yaml::GetInt32(sNssai, "sst", 1, 0xFF);
+            s.sst = yaml::GetInt32(sNssai, "sst", 0, 0xFF);
             if (yaml::HasField(sNssai, "sd"))
-                s.sd = octet3{yaml::GetInt32(sNssai, "sd", 1, 0xFFFFFF)};
+                s.sd = octet3{yaml::GetInt32(sNssai, "sd", 0, 0xFFFFFF)};
             result->initials.configuredNssai.slices.push_back(s);
         }
     }
@@ -178,9 +180,9 @@ static nr::ue::UeConfig *ReadConfigYaml()
             {
                 auto slice = sess["slice"];
                 s.sNssai = SingleSlice{};
-                s.sNssai->sst = yaml::GetInt32(slice, "sst", 1, 0xFF);
+                s.sNssai->sst = yaml::GetInt32(slice, "sst", 0, 0xFF);
                 if (yaml::HasField(slice, "sd"))
-                    s.sNssai->sd = octet3{yaml::GetInt32(slice, "sd", 1, 0xFFFFFF)};
+                    s.sNssai->sd = octet3{yaml::GetInt32(slice, "sd", 0, 0xFFFFFF)};
             }
 
             std::string type = yaml::GetString(sess, "type");
@@ -220,9 +222,9 @@ static nr::ue::UeConfig *ReadConfigYaml()
 
 static void ReadOptions(int argc, char **argv)
 {
-    opt::OptionsDescription desc{cons::Project, cons::Tag, "5G-SA UE implementation",
-                                 cons::Owner,   "nr-ue",   {"-c <config-file> [option...]"},
-                                 true,          false};
+    opt::OptionsDescription desc{
+        cons::Project, cons::Tag, "5G-SA UE implementation", cons::Owner, "nr-ue", {"-c <config-file> [option...]"}, {},
+        true,          false};
 
     opt::OptionItem itemConfigFile = {'c', "config", "Use specified configuration file for UE", "config-file"};
     opt::OptionItem itemImsi = {'i', "imsi", "Use specified IMSI number instead of provided one", "imsi"};

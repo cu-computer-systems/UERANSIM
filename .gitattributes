@@ -1,2 +1,2 @@
-src/asn/* linguist-vendored
-src/ext/* linguist-vendored
+* linguist-vendored
+*.cpp linguist-vendored=false
