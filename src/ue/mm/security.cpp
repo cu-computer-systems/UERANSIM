@@ -10,6 +10,8 @@
 #include <nas/utils.hpp>
 #include <ue/nas/keys.hpp>
 
+#include <utils/common.hpp> // JK
+
 namespace nr::ue
 {
 
@@ -32,6 +34,12 @@ static int FindSecurityContext(int ksi, const std::unique_ptr<NasSecurityContext
 void NasMm::receiveSecurityModeCommand(const nas::SecurityModeCommand &msg)
 {
     m_logger->debug("Security Mode Command received");
+    m_logger->info("JK### receiveSecurityModeCommand @ue IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+    m_logger->info("JK### sendSecurityModeComplete @ue IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
 
     auto reject = [this](nas::EMmCause cause) {
         nas::SecurityModeReject resp;
@@ -164,6 +172,14 @@ void NasMm::receiveSecurityModeCommand(const nas::SecurityModeCommand &msg)
 
     // Send response
     sendNasMessage(resp);
+    m_logger->info("JK### sendSecurityModeComplete @ue IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+    // MERGED WITH receiveRegistrationAccept
+    // m_logger->info("JK### receiveRegistrationAccept @ue IMSI: %s START: %.3f",
+    m_logger->info("JK### receiveInitialContextSetupRequest(+RegistrationAccept) @ue IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
 }
 
 nas::IEUeSecurityCapability NasMm::createSecurityCapabilityIe()

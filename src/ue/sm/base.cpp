@@ -8,6 +8,8 @@
 
 #include "sm.hpp"
 
+#include <utils/common.hpp> // JK
+
 namespace nr::ue
 {
 
@@ -37,7 +39,10 @@ void NasSm::establishInitialSessions()
         return;
     }
 
-    m_logger->info("Initial PDU sessions are establishing [%d#]", m_base->config->initSessions.size());
+    // m_logger->info("Initial PDU sessions are establishing [%d#]", m_base->config->initSessions.size());
+    // JK
+    m_logger->info("Initial PDU sessions are establishing initSessions.size() [%d#]", m_base->config->initSessions.size());
+    // m_logger->info("JK### sendPDUSessionEstablishmentRequest START: %.3f", (double)utils::CurrentTimeMicros()/1000);
 
     for (auto &sess : m_base->config->initSessions)
         sendEstablishmentRequest(sess);

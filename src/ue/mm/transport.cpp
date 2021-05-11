@@ -13,6 +13,10 @@
 #include <ue/rrc/task.hpp>
 #include <ue/sm/sm.hpp>
 
+//JK 
+#include <utils/common.hpp>
+
+
 namespace nr::ue
 {
 
@@ -146,49 +150,160 @@ void NasMm::receiveMmMessage(const nas::PlainMmMessage &msg)
     switch (msg.messageType)
     {
     case nas::EMessageType::REGISTRATION_ACCEPT:
+        m_logger->info("JK*** receiveMmMessage REGISTRATION_ACCEPT IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveRegistrationAccept((const nas::RegistrationAccept &)msg);
+        m_logger->info("JK*** receiveMmMessage REGISTRATION_ACCEPT IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         break;
     case nas::EMessageType::REGISTRATION_REJECT:
+        m_logger->info("JK*** receiveMmMessage REGISTRATION_REJECT IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveRegistrationReject((const nas::RegistrationReject &)msg);
+        m_logger->info("JK*** receiveMmMessage REGISTRATION_REJECT IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+                    
         break;
     case nas::EMessageType::DEREGISTRATION_ACCEPT_UE_ORIGINATING:
+        m_logger->info("JK*** receiveMmMessage DEREGISTRATION_ACCEPT_UE_ORIGINATING IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveDeregistrationAccept((const nas::DeRegistrationAcceptUeOriginating &)msg);
+        m_logger->info("JK*** receiveMmMessage DEREGISTRATION_ACCEPT_UE_ORIGINATING IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+                
+        
         break;
     case nas::EMessageType::DEREGISTRATION_REQUEST_UE_TERMINATED:
+        m_logger->info("JK*** receiveMmMessage DEREGISTRATION_REQUEST_UE_TERMINATED IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveDeregistrationRequest((const nas::DeRegistrationRequestUeTerminated &)msg);
+        m_logger->info("JK*** receiveMmMessage DEREGISTRATION_REQUEST_UE_TERMINATED IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+        
         break;
     case nas::EMessageType::SERVICE_REJECT:
+        m_logger->info("JK*** receiveMmMessage SERVICE_REJECT IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveServiceReject((const nas::ServiceReject &)msg);
+        m_logger->info("JK*** receiveMmMessage SERVICE_REJECT IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+        
+        
         break;
     case nas::EMessageType::SERVICE_ACCEPT:
+        m_logger->info("JK*** receiveMmMessage SERVICE_ACCEPT IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveServiceAccept((const nas::ServiceAccept &)msg);
+        m_logger->info("JK*** receiveMmMessage SERVICE_ACCEPT IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+        
+        
         break;
     case nas::EMessageType::CONFIGURATION_UPDATE_COMMAND:
+        m_logger->info("JK*** receiveMmMessage receiveConfigurationUpdate @ue IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+        m_logger->info("JK### receiveConfigurationUpdateCommand @ue IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveConfigurationUpdate((const nas::ConfigurationUpdateCommand &)msg);
+        m_logger->info("JK*** receiveMmMessage receiveConfigurationUpdate @ue IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+        // m_logger->info("JK### receiveConfigurationUpdateCommand @ue IMSI: %s END: %.3f",
+        //             m_base->config->supi->value.c_str(),
+        //             (double)utils::CurrentTimeMicros()/1000);        
         break;
     case nas::EMessageType::AUTHENTICATION_REQUEST:
+        m_logger->info("JK*** receiveMmMessage AUTHENTICATION_REQUEST IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveAuthenticationRequest((const nas::AuthenticationRequest &)msg);
+        m_logger->info("JK*** receiveMmMessage AUTHENTICATION_REQUEST IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);  
         break;
     case nas::EMessageType::AUTHENTICATION_RESPONSE:
+        m_logger->info("JK*** receiveMmMessage AUTHENTICATION_RESPONSE IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveAuthenticationResponse((const nas::AuthenticationResponse &)msg);
+        m_logger->info("JK*** receiveMmMessage AUTHENTICATION_RESPONSE IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);  
+        
         break;
     case nas::EMessageType::AUTHENTICATION_REJECT:
+        m_logger->info("JK*** receiveMmMessage AUTHENTICATION_REJECT IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveAuthenticationReject((const nas::AuthenticationReject &)msg);
+        m_logger->info("JK*** receiveMmMessage AUTHENTICATION_REJECT IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);  
+        
         break;
     case nas::EMessageType::AUTHENTICATION_RESULT:
+        m_logger->info("JK*** receiveMmMessage AUTHENTICATION_RESULT IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveAuthenticationResult((const nas::AuthenticationResult &)msg);
+        m_logger->info("JK*** receiveMmMessage AUTHENTICATION_RESULT IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);  
+        
         break;
     case nas::EMessageType::IDENTITY_REQUEST:
+        m_logger->info("JK*** receiveMmMessage IDENTITY_REQUEST IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveIdentityRequest((const nas::IdentityRequest &)msg);
+        m_logger->info("JK*** receiveMmMessage IDENTITY_REQUEST IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);  
         break;
     case nas::EMessageType::SECURITY_MODE_COMMAND:
+        m_logger->info("JK*** receiveMmMessage SECURITY_MODE_COMMAND IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveSecurityModeCommand((const nas::SecurityModeCommand &)msg);
+        m_logger->info("JK*** receiveMmMessage SECURITY_MODE_COMMAND IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000); 
+        
         break;
     case nas::EMessageType::FIVEG_MM_STATUS:
+        m_logger->info("JK*** receiveMmMessage FIVEG_MM_STATUS IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveMmStatus((const nas::FiveGMmStatus &)msg);
+        m_logger->info("JK*** receiveMmMessage FIVEG_MM_STATUS IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000); 
+        
         break;
     case nas::EMessageType::DL_NAS_TRANSPORT:
+        m_logger->info("JK*** receiveMmMessage DL_NAS_TRANSPORT IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
         receiveDlNasTransport((const nas::DlNasTransport &)msg);
+        m_logger->info("JK*** receiveMmMessage DL_NAS_TRANSPORT IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000); 
+        
+        
         break;
     default:
         m_logger->err("Unhandled NAS MM message received: %d", (int)msg.messageType);

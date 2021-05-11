@@ -15,6 +15,13 @@ namespace nr::ue
 
 void NasMm::receiveIdentityRequest(const nas::IdentityRequest &msg)
 {
+    m_logger->info("JK### receiveIdentityRequest IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+    m_logger->info("JK### sendIdentityResponse IMSI: %s START: %.3f",
+                        m_base->config->supi->value.c_str(),
+                        (double)utils::CurrentTimeMicros()/1000);
+
     nas::IdentityResponse resp;
 
     if (msg.identityType.value == nas::EIdentityType::SUCI)
@@ -34,10 +41,14 @@ void NasMm::receiveIdentityRequest(const nas::IdentityRequest &msg)
     else
     {
         resp.mobileIdentity.type = nas::EIdentityType::NO_IDENTITY;
-        m_logger->err("Requested identity is not available: %d", (int)msg.identityType.value);
+        m_logger->info("Requested identity is not available: %d", (int)msg.identityType.value);
     }
 
     sendNasMessage(resp);
+    m_logger->info("JK### sendIdentityResponse IMSI: %s END: %.3f",
+                        m_base->config->supi->value.c_str(),
+                        (double)utils::CurrentTimeMicros()/1000);
+
 }
 
 nas::IE5gsMobileIdentity NasMm::getOrGenerateSuci()
@@ -55,6 +66,8 @@ nas::IE5gsMobileIdentity NasMm::getOrGenerateSuci()
 
 nas::IE5gsMobileIdentity NasMm::generateSuci()
 {
+    // m_logger->debug("***JK### IE5gsMobileIdentity: %s", m_base->config->supi->value.c_str());
+
     auto &supi = m_base->config->supi;
     auto &plmn = m_usim->m_currentPlmn;
 

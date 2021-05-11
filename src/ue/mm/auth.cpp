@@ -9,6 +9,8 @@
 #include "mm.hpp"
 #include <ue/nas/keys.hpp>
 
+#include <utils/common.hpp> // JK
+
 static const bool IGNORE_CONTROLS_FAILURES = false;
 static const bool USE_SQN_HACK = true; // TODO
 
@@ -17,6 +19,15 @@ namespace nr::ue
 
 void NasMm::receiveAuthenticationRequest(const nas::AuthenticationRequest &msg)
 {
+    // long m_nowMicros = utils::CurrentTimeMicros();
+    // m_logger->info("JK### receiveAuthenticationRequest END: %.3f", (double)m_nowMicros/1000);
+    m_logger->info("JK### receiveAuthenticationRequest @ue IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+    m_logger->info("JK### sendAuthenticationResponse @ue IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+
     if (!m_usim->isValid())
     {
         m_logger->warn("Authentication request is ignored. USIM is invalid");
@@ -299,6 +310,12 @@ void NasMm::receiveAuthenticationRequest5gAka(const nas::AuthenticationRequest &
         resp.authenticationResponseParameter = nas::IEAuthenticationResponseParameter{};
         resp.authenticationResponseParameter->rawData = m_usim->m_nonCurrentNsCtx->keys.resStar.copy();
         sendNasMessage(resp);
+        m_logger->info("JK### sendAuthenticationResponse @ue IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+        m_logger->info("JK### receiveSecurityModeCommand @ue IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
     }
     else if (autnCheck == EAutnValidationRes::MAC_FAILURE)
     {

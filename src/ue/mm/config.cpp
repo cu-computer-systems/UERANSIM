@@ -9,12 +9,21 @@
 #include "mm.hpp"
 
 #include <nas/utils.hpp>
+//JK 
+#include <utils/common.hpp>
 
 namespace nr::ue
 {
 
 void NasMm::receiveConfigurationUpdate(const nas::ConfigurationUpdateCommand &msg)
 {
+    m_logger->info("JK### receiveConfigurationUpdateCommand @ue IMSI: %s END: %.3f",
+                m_base->config->supi->value.c_str(),
+                (double)utils::CurrentTimeMicros()/1000);        
+    m_logger->info("JK### sendConfigurationUpdateComplete @ue IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+                    
     // Indicates there exists at least one configuration to be updated
     bool hasNewConfig = false;
 
@@ -171,6 +180,9 @@ void NasMm::receiveConfigurationUpdate(const nas::ConfigurationUpdateCommand &ms
     {
         sendNasMessage(nas::ConfigurationUpdateComplete{});
     }
+    m_logger->info("JK### sendConfigurationUpdateComplete @ue IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
 }
 
 } // namespace nr::ue

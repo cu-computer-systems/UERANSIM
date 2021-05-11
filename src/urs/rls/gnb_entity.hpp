@@ -15,12 +15,20 @@
 #include <unordered_map>
 #include <utils/network.hpp>
 
+
+// JK
+// #include <ue/types.hpp>
+// #include "ue_entity.hpp"
+
 namespace rls
 {
 
 class RlsGnbEntity
 {
   private:
+    // JK for SUPI
+    // TaskBase *m_base;
+
     std::string nodeName;
     uint64_t token;
     std::unordered_map<uint64_t, int> ueIdMap;         // UE token to gNB-internal UE id.

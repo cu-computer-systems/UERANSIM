@@ -13,6 +13,9 @@
 #include <ue/app/task.hpp>
 #include <ue/mm/mm.hpp>
 
+#include <utils/common.hpp> // JK
+
+
 namespace nr::ue
 {
 
@@ -39,6 +42,9 @@ static nas::IEIntegrityProtectionMaximumDataRate MakeIntegrityMaxRate(const Inte
 void NasSm::sendEstablishmentRequest(const SessionConfig &config)
 {
     m_logger->debug("Sending PDU session establishment request");
+    m_logger->info("JK### sendPDUSessionEstablishmentRequest @ue IMSI: %s START: %.3f",
+                m_base->config->supi->value.c_str(),
+                (double)utils::CurrentTimeMicros()/1000);
 
     /* Control the protocol state */
     if (!m_mm->isRegistered())
@@ -123,11 +129,44 @@ void NasSm::sendEstablishmentRequest(const SessionConfig &config)
 
     /* Send SM message */
     sendSmMessage(psi, *pt.message);
+
+    m_logger->info("JK### sendPDUSessionEstablishmentRequest @ue IMSI: %s END: %.3f",
+                m_base->config->supi->value.c_str(),
+                (double)utils::CurrentTimeMicros()/1000);
+
+    // TO MODIFY: send ==> receive
+//     m_logger->info("JK### sendPDUSessionResourceSetupRequest @ue IMSI: %s END: %.3f",
+//                     m_base->config->supi->value.c_str(),
+//                     (double)utils::CurrentTimeMicros()/1000);
+//     m_logger->info("JK### receivePDUSessionResourceSetupResponse @ue IMSI: %s START: %.3f",
+//                     m_base->config->supi->value.c_str(),
+//                     (double)utils::CurrentTimeMicros()/1000);
+
+    // MERGED TO receivePDUSessionResourceSetupRequest
+    // m_logger->info("JK### receivesendPDUSessionEstablishmentAccept @ue IMSI: %s START: %.3f",
+    //                 m_base->config->supi->value.c_str(),
+    //                 (double)utils::CurrentTimeMicros()/1000);
+    m_logger->info("JK### receivePDUSessionResourceSetupRequest(+EstablishmentAccept) @ue IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
 }
+
 
 void NasSm::receivePduSessionEstablishmentAccept(const nas::PduSessionEstablishmentAccept &msg)
 {
     m_logger->debug("PDU Session Establishment Accept received");
+
+    // TO MODIFY recv ==> send and Locations Req ==> Res
+    // m_logger->info("JK### receivePDUSessionResourceSetupResponse @ue IMSI: %s END: %.3f",
+    //                 m_base->config->supi->value.c_str(),
+    //                 (double)utils::CurrentTimeMicros()/1000);
+
+    // MERGED with receivePDUSessionResourceSetupRequest
+    // m_logger->info("JK### receivesendPDUSessionEstablishmentAccept @ue IMSI: %s END: %.3f",
+    // m_logger->info("JK### receivePDUSessionResourceSetupRequest(+EstablishmentAccept) @ue IMSI: %s END: %.3f",
+    //                 m_base->config->supi->value.c_str(),
+    //                 (double)utils::CurrentTimeMicros()/1000);
+
 
     if (msg.smCause.has_value())
     {

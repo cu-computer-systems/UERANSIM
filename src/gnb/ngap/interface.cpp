@@ -76,6 +76,8 @@ static void AssignDefaultAmfConfigs(NgapAmfContext *amf, T *msg)
 
 void NgapTask::handleAssociationSetup(int amfId, int ascId, int inCount, int outCount)
 {
+    // m_logger->err("JK*** handleAssociationSetup amfId/ClientId: %d", amfId);
+    
     auto *amf = findAmfContext(amfId);
     if (amf != nullptr)
     {
@@ -85,6 +87,7 @@ void NgapTask::handleAssociationSetup(int amfId, int ascId, int inCount, int out
 
         sendNgSetupRequest(amf->ctxId);
     }
+    // m_logger->err("JK*** handleAssociationSetup amf->ctxId: %d", amf->ctxId);
 }
 
 void NgapTask::handleAssociationShutdown(int amfId)

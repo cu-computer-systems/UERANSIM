@@ -168,6 +168,14 @@ void RlsGnbEntity::onReceive(const InetAddress &address, const OctetString &pdu)
         }
 
         int ueId = utils::NextId();
+
+        // JK
+        // logInfo("JK*** ueId: %d for %s", ueId, m_base->config->supi->value.c_str());
+        logError("JK### RlsGnbEntity_onReceive @gNB ueId: " + std::to_string((int)ueId) 
+                + " ueToken: " + std::to_string((long)msg.ueToken) );
+        // logWarn("JK*** ueId!!!");
+        // logError("JK*** ueId!!!");
+
         ueIdMap[msg.ueToken] = ueId;
         idUeMap[ueId] = msg.ueToken;
         ueAddressMap[ueId] = address;

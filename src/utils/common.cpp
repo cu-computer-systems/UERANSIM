@@ -153,6 +153,18 @@ int64_t utils::CurrentTimeMillis()
     return now;
 }
 
+
+// JK, https://en.cppreference.com/w/cpp/chrono/duration
+int64_t utils::CurrentTimeMicros()
+{
+    auto time = std::chrono::system_clock::now();
+    auto sinceEpoch = time.time_since_epoch();
+    auto micros = std::chrono::duration_cast<std::chrono::microseconds>(sinceEpoch);
+    int64_t now = micros.count();
+    return now;
+}
+
+
 TimeStamp utils::CurrentTimeStamp()
 {
     int64_t tms = CurrentTimeMillis();

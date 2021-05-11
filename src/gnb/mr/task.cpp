@@ -149,7 +149,11 @@ void GnbMrTask::onUeConnected(int ue, const std::string &name)
     m_ueMap[ue].ueId = ue;
     m_ueMap[ue].name = name;
 
-    m_logger->info("New UE connected to gNB. Total number of UEs [%d]", m_ueMap.size());
+    // m_logger->info("New UE connected to gNB. Total number of UEs [%d]", m_ueMap.size());
+    // JK
+    // m_logger->info("New UE connected to gNB. Total number of UEs [%d], ueId: %d, name: %s", 
+                    // m_ueMap.size(), ue, name);
+    m_logger->info("New UE connected to gNB. Total number of UEs [%d], ueId: %d", m_ueMap.size(), ue);                    
 }
 
 void GnbMrTask::onUeReleased(int ue, rls::ECause cause)

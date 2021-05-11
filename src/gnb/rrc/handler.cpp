@@ -91,6 +91,7 @@ void GnbRrcTask::receiveRrcSetupRequest(int ueId, const ASN_RRC_RRCSetupRequest 
     }
 
     int64_t initialRandomId = asn::GetBitStringLong<39>(msg.rrcSetupRequest.ue_Identity.choice.randomValue);
+    // JK m_logger->err("JK*** receiveRrcSetupRequest, Initial random ID %ld: ", initialRandomId);
     if (tryFindByInitialRandomId(initialRandomId) != nullptr)
     {
         m_logger->err("Initial random ID conflict [%ld], discarding RRC Setup Request", initialRandomId);

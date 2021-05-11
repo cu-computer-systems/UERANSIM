@@ -46,7 +46,13 @@ void RlsUeEntity::onHeartbeat()
     msg.msgType = EMessageType::RLS_HEARTBEAT;
     msg.msgCls = EMessageClass::NORMAL_MESSAGE;
     msg.appVersion = AppVersion;
+
+    // JK
+    // logError("JK*** RlsUeEntity::onHeartbeat, gnbToken:" + std::to_string((long)gnbToken)
+            //   + " ueToken: "+ std::to_string((long)ueToken) );
+
     sendRlsMessage(selected, msg);
+    
 }
 
 void RlsUeEntity::onWaitingTimerExpire()
@@ -63,8 +69,14 @@ void RlsUeEntity::onWaitingTimerExpire()
     {
         nextSearch++;
         ueToken = utils::Random64();
+
+        // JK
+        // logError("JK*** RlsUeEntity::onWaitingTimerExpire, utils::Random64() ueToken: "
+                // + std::to_string((long)ueToken) );
+
         startWaitingTimer(Constants::UE_WAIT_TIMEOUT);
-        sendSetupRequest();
+        sendSetupRequest();   
+        
     }
 }
 
@@ -84,7 +96,14 @@ void RlsUeEntity::onUplinkDelivery(EPayloadType type, OctetString &&payload)
     msg.appVersion = AppVersion;
     msg.payloadType = type;
     msg.payload = std::move(payload);
+
+    // JK
+    // logError("JK*** RlsUeEntity::onUplinkDelivery, gnbToken: " 
+            // + std::to_string((long)gnbToken)
+            // + " ueToken: "+ std::to_string((long)ueToken) );
+
     sendRlsMessage(selected, msg);
+    
 }
 
 void RlsUeEntity::startGnbSearch()
@@ -106,9 +125,15 @@ void RlsUeEntity::startGnbSearch()
 
     nextSearch = 0;
     ueToken = utils::Random64();
+    // JK
+    // logError("JK*** RlsUeEntity::startGnbSearch, utils::Random64() ueToken: " 
+            // + std::to_string((long)ueToken) );
+
     startWaitingTimer(Constants::UE_WAIT_TIMEOUT);
     state = EUeState::SEARCH;
     sendSetupRequest();
+
+        
 }
 
 void RlsUeEntity::onReceive(const InetAddress &address, const OctetString &pdu)
@@ -122,6 +147,14 @@ void RlsUeEntity::onReceive(const InetAddress &address, const OctetString &pdu)
     RlsMessage msg{};
 
     auto res = Decode(OctetView{pdu}, msg, AppVersion);
+
+    // JK
+    // logError("JK*** RlsUeEntity::onReceive, gnbToken: " + std::to_string((long)gnbToken)
+            //   + " ueToken: "+ std::to_string((long)ueToken) 
+            //   + " msg.ueToken: "+ std::to_string((long)msg.ueToken) 
+            //   + " msg.gnbToken: "+ std::to_string((long)msg.gnbToken) );
+
+
     if (res == DecodeRes::FAILURE)
     {
         logError("PDU decoding failed");
@@ -254,7 +287,14 @@ void RlsUeEntity::sendSetupRequest()
     m.appVersion = AppVersion;
     m.ueToken = ueToken;
     m.gnbToken = 0;
+
+
+    // JK
+    // logError("JK*** RlsUeEntity::sendSetupRequest(), m.gnbToken: " + std::to_string((long)m.gnbToken)
+            //   + " m.ueToken: "+ std::to_string((long)m.ueToken) );
+
     sendRlsMessage(gnbSearchList[nextSearch], m);
+
 }
 
 void RlsUeEntity::sendSetupComplete()
@@ -266,7 +306,17 @@ void RlsUeEntity::sendSetupComplete()
     m.ueToken = ueToken;
     m.gnbToken = gnbToken;
     m.str = nodeName;
+
+    // JK
+    // logError("JK### RlsUeEntity_sendSetupComplete @ue gnbToken: " + std::to_string((long)gnbToken)
+    //           + " ueToken: "+ std::to_string((long)ueToken) );
+
+    logError("JK### RlsUeEntity_sendSetupComplete @ue gnbToken: " + std::to_string((long)gnbToken)
+              + " ueToken: " + std::to_string((long)ueToken)
+              + " START: " + std::to_string((double)utils::CurrentTimeMicros()/1000) );
+
     sendRlsMessage(selected, m);
+
 }
 
 void RlsUeEntity::sendReleaseIndication(ECause cause)
@@ -290,7 +340,13 @@ void RlsUeEntity::sendRlsMessage(const InetAddress &address, const RlsMessage &m
         return;
     }
 
+    // JK
+    // logError("JK*** RlsUeEntity::sendRlsMessage(), gnbToken: " 
+            // + std::to_string((long)gnbToken)
+            // + " ueToken: "+ std::to_string((long)ueToken) );
+
     sendRlsPdu(address, std::move(stream));
+
 }
 
 void RlsUeEntity::localReleaseConnection(ECause cause)

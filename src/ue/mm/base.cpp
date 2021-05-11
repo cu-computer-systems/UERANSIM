@@ -84,8 +84,27 @@ void NasMm::performMmCycle()
 
     if (m_mmSubState == EMmSubState::MM_DEREGISTERED_NORMAL_SERVICE)
     {
+     	// long m_startMicros = 0;
+     	// long m_endMicros = 0;
+        	
         if (!m_timers->t3346.isRunning())
-            sendInitialRegistration(false, false);
+        {
+            // long m_startMicros = utils::CurrentTimeMicros();
+	        m_logger->info("JK### sendInitialRegistrationRequest @ue IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+        	sendInitialRegistration(false, false);
+        	// long m_endMicros = utils::CurrentTimeMicros();
+	        // m_logger->info("sendInitialRegistrationRequest END: %d", utils::CurrentTimeMillis());
+            m_logger->info("JK### sendInitialRegistrationRequest @ue IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+	        // m_logger->info("JK### sendInitialRegistrationRequest DURATION: %.3f ms", (double)(m_endMicros-m_startMicros)/1000);
+            m_logger->info("JK### receiveAuthenticationRequest @ue IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+	}
+        	
         return;
     }
 

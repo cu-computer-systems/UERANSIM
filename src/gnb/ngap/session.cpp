@@ -38,6 +38,10 @@ void NgapTask::receiveSessionResourceSetupRequest(int amfId, ASN_NGAP_PDUSession
     std::vector<ASN_NGAP_PDUSessionResourceFailedToSetupItemSURes *> failedList;
 
     auto *ue = findUeByNgapIdPair(amfId, ngap_utils::FindNgapIdPair(msg));
+
+    m_logger->info("JK### receivePDUSessionResourceSetupRequest(+EstablishmentAccept) @gNB ueId: %d END: %.3f", ue->ctxId, (double)utils::CurrentTimeMicros()/1000);
+    m_logger->info("JK### sendPDUSessionResourceSetupResponse @gNB ueId: %d START: %.3f", ue->ctxId, (double)utils::CurrentTimeMicros()/1000);
+
     if (ue == nullptr)
         return;
 
@@ -199,6 +203,8 @@ void NgapTask::receiveSessionResourceSetupRequest(int amfId, ASN_NGAP_PDUSession
     else
         m_logger->err("PDU session establishment is partially successful for UE[%d], success[%d], failed[%d]",
                       successList.size(), failedList.size());
+
+    m_logger->info("JK### sendPDUSessionResourceSetupResponse @gNB ueId: %d END: %.3f", ue->ctxId, (double)utils::CurrentTimeMicros()/1000);
 }
 
 std::optional<NgapCause> NgapTask::setupPduSessionResource(PduSessionResource *resource)

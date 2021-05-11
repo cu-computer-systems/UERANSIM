@@ -18,6 +18,8 @@ namespace nr::ue
 
 void NasMm::sendInitialRegistration(bool isEmergencyReg, bool dueToDereg)
 {
+    m_logger->debug("JK*** Starting sendInitialRegistration: %s", m_base->config->supi->value.c_str());
+
     if (m_rmState != ERmState::RM_DEREGISTERED)
     {
         m_logger->warn("Registration could not be triggered. UE is not in RM-DEREGISTERED state.");
@@ -92,8 +94,10 @@ void NasMm::sendInitialRegistration(bool isEmergencyReg, bool dueToDereg)
     }
 
     // Send the message
+    // m_logger->debug("JK=== sendNasMessage START: %d", utils::CurrentTimeMillis());    
     sendNasMessage(*request);
     m_lastRegistrationRequest = std::move(request);
+    // m_logger->debug("JK=== sendNasMessage START: %d", utils::CurrentTimeMillis());    
 
     // Process timers
     m_timers->t3510.start();
@@ -103,6 +107,8 @@ void NasMm::sendInitialRegistration(bool isEmergencyReg, bool dueToDereg)
 
 void NasMm::sendMobilityRegistration(ERegUpdateCause updateCause)
 {
+    m_logger->debug("JK*** Starting sendMobilityRegistration");
+
     if (m_rmState == ERmState::RM_DEREGISTERED)
     {
         m_logger->warn("Registration updating could not be triggered. UE is in RM-DEREGISTERED state.");
@@ -130,7 +136,7 @@ void NasMm::sendMobilityRegistration(ERegUpdateCause updateCause)
 
     // Switch state
     switchMmState(EMmState::MM_REGISTERED_INITIATED, EMmSubState::MM_REGISTERED_INITIATED_NA);
-
+       
     // Prepare FOR pending field
     nas::EFollowOnRequest followOn = nas::EFollowOnRequest::FOR_PENDING;
 
@@ -185,6 +191,8 @@ void NasMm::sendMobilityRegistration(ERegUpdateCause updateCause)
 
 void NasMm::receiveRegistrationAccept(const nas::RegistrationAccept &msg)
 {
+    m_logger->debug("JK*** Starting receiveRegistrationAccept");
+
     if (m_mmState != EMmState::MM_REGISTERED_INITIATED)
     {
         m_logger->warn("Registration Accept ignored since the MM state is not MM_REGISTERED_INITIATED");
@@ -193,6 +201,18 @@ void NasMm::receiveRegistrationAccept(const nas::RegistrationAccept &msg)
     }
 
     m_logger->debug("Registration accept received");
+
+
+    // MERGED TO receiveInitialContextSetupRequest(+RegistrationAccept)
+    // m_logger->info("JK### receiveRegistrationAccept @ue IMSI: %s END: %.3f",
+    //                 m_base->config->supi->value.c_str(),
+    //                 (double)utils::CurrentTimeMicros()/1000);
+
+    // MOVED TO receiveInitialRegistrationAccept()    
+    // m_logger->info("JK### sendRegistrationComplete @ue IMSI: %s START: %.3f",
+    //                 m_base->config->supi->value.c_str(),
+    //                 (double)utils::CurrentTimeMicros()/1000);
+
 
     if (msg.registrationResult.registrationResult == nas::E5gsRegistrationResult::NON_THREEGPP_ACCESS)
     {
@@ -211,6 +231,8 @@ void NasMm::receiveRegistrationAccept(const nas::RegistrationAccept &msg)
 
 void NasMm::receiveInitialRegistrationAccept(const nas::RegistrationAccept &msg)
 {
+    m_logger->debug("JK*** Starting receiveInitialRegistrationAccept");
+
     // Store the TAI list as a registration area
     m_usim->m_taiList = msg.taiList.value_or(nas::IE5gsTrackingAreaIdentityList{});
     // Store the service area list
@@ -260,6 +282,10 @@ void NasMm::receiveInitialRegistrationAccept(const nas::RegistrationAccept &msg)
             m_logger->warn("GUTI was expected in registration accept but another identity type received");
         }
     }
+
+    m_logger->info("JK### sendRegistrationComplete @ue IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
 
     // Process rejected NSSAI
     if (msg.rejectedNSSAI.has_value())
@@ -314,10 +340,15 @@ void NasMm::receiveInitialRegistrationAccept(const nas::RegistrationAccept &msg)
         m_registeredForEmergency = true;
 
     m_logger->info("%s is successful", nas::utils::EnumToString(regType));
+    m_logger->info("JK### sendRegistrationComplete @ue IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
 }
 
 void NasMm::receiveMobilityRegistrationAccept(const nas::RegistrationAccept &msg)
 {
+    m_logger->debug("JK*** Starting receiveMobilityRegistrationAccept");
+
     // "The UE, upon receiving a REGISTRATION ACCEPT message, shall delete its old TAI list and store the received TAI
     // list. If there is no TAI list received, the UE shall consider the old TAI list as valid."
     if (msg.taiList.has_value())
@@ -419,6 +450,8 @@ void NasMm::receiveMobilityRegistrationAccept(const nas::RegistrationAccept &msg
 
 void NasMm::receiveRegistrationReject(const nas::RegistrationReject &msg)
 {
+    m_logger->debug("JK*** Starting receiveRegistrationReject");
+
     if (m_mmState != EMmState::MM_REGISTERED_INITIATED)
     {
         m_logger->warn("Registration Reject ignored since the MM state is not MM_REGISTERED_INITIATED");
@@ -440,6 +473,8 @@ void NasMm::receiveRegistrationReject(const nas::RegistrationReject &msg)
 
 void NasMm::receiveInitialRegistrationReject(const nas::RegistrationReject &msg)
 {
+    m_logger->debug("JK*** Starting receiveInitialRegistrationReject");
+
     auto cause = msg.mmCause.value;
     auto regType = m_lastRegistrationRequest->registrationType.registrationType;
 
@@ -591,6 +626,10 @@ void NasMm::receiveInitialRegistrationReject(const nas::RegistrationReject &msg)
 
 void NasMm::receiveMobilityRegistrationReject(const nas::RegistrationReject &msg)
 {
+
+    m_logger->debug("JK*** Starting receiveMobilityRegistrationReject");
+
+
     auto cause = msg.mmCause.value;
     auto regType = m_lastRegistrationRequest->registrationType.registrationType;
 
@@ -751,6 +790,9 @@ void NasMm::receiveMobilityRegistrationReject(const nas::RegistrationReject &msg
 
 void NasMm::handleAbnormalInitialRegFailure(nas::ERegistrationType regType)
 {
+    m_logger->debug("JK*** Starting handleAbnormalInitialRegFailure");
+
+
     // Timer T3510 shall be stopped if still running
     m_timers->t3510.stop();
 
@@ -795,6 +837,8 @@ void NasMm::handleAbnormalInitialRegFailure(nas::ERegistrationType regType)
 
 void NasMm::handleAbnormalMobilityRegFailure(nas::ERegistrationType regType)
 {
+    m_logger->debug("JK*** Starting handleAbnormalMobilityRegFailure");
+
     // "Timer T3510 shall be stopped if still running"
     m_timers->t3510.stop();
 

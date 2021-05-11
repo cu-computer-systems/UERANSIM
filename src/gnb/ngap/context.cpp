@@ -33,11 +33,23 @@ namespace nr::gnb
 
 void NgapTask::receiveInitialContextSetup(int amfId, ASN_NGAP_InitialContextSetupRequest *msg)
 {
-    m_logger->debug("Initial Context Setup Request received");
+    // m_logger->debug("Initial Context Setup Request received");
+    // JK
+    m_logger->debug("Initial Context Setup Request received, amfId: %d", amfId);
 
+    
     auto *ue = findUeByNgapIdPair(amfId, ngap_utils::FindNgapIdPair(msg));
     if (ue == nullptr)
         return;
+
+    // MERGED WITH receiveRegistrationAccept @ue
+    // m_logger->info("JK### receiveInitialContextSetupRequest @gNB ueId: %d END: %.3f", ue->ctxId, (double)utils::CurrentTimeMicros()/1000);
+    m_logger->info("JK### receiveInitialContextSetupRequest(+RegistrationAccept) @gNB ueId: %d END: %.3f", 
+                ue->ctxId, (double)utils::CurrentTimeMicros()/1000);
+
+    m_logger->info("JK### sendInitialContextSetupResponse @gNB ueId: %d START: %.3f", 
+                ue->ctxId, (double)utils::CurrentTimeMicros()/1000);
+
 
     auto *ie = asn::ngap::GetProtocolIe(msg, ASN_NGAP_ProtocolIE_ID_id_UEAggregateMaximumBitRate);
     if (ie)
@@ -48,6 +60,15 @@ void NgapTask::receiveInitialContextSetup(int amfId, ASN_NGAP_InitialContextSetu
 
     auto *response = asn::ngap::NewMessagePdu<ASN_NGAP_InitialContextSetupResponse>({});
     sendNgapUeAssociated(ue->ctxId, response);
+
+    m_logger->info("JK### sendInitialContextSetupResponse @gNB ueId: %d END: %.3f", ue->ctxId, (double)utils::CurrentTimeMicros()/1000);
+    // TO DELETE: recv PDU resource ==> send PUD Est. Request
+    // m_logger->info("JK### receivePDUSessionResourceSetupRequest @gNB ueId: %d START: %.3f", ue->ctxId, (double)utils::CurrentTimeMicros()/1000);
+
+    // Other possible following steps
+    // Send registration complete
+    // Recv Configuration Update command
+    // Send PDU Session Establish Request
 
     ie = asn::ngap::GetProtocolIe(msg, ASN_NGAP_ProtocolIE_ID_id_NAS_PDU);
     if (ie)
@@ -60,9 +81,12 @@ void NgapTask::receiveInitialContextSetup(int amfId, ASN_NGAP_InitialContextSetu
 
 void NgapTask::receiveContextRelease(int amfId, ASN_NGAP_UEContextReleaseCommand *msg)
 {
-    m_logger->debug("UE Context Release Command received");
-
     auto *ue = findUeByNgapIdPair(amfId, ngap_utils::FindNgapIdPairFromUeNgapIds(msg));
+
+    m_logger->debug("UE Context Release Command received");
+    m_logger->info("JK### receiveContextReleaseCommand @gNB ueId: %d END: %.3f", ue->ctxId, (double)utils::CurrentTimeMicros()/1000);
+    m_logger->info("JK### sendContextReleaseComplete @gNB ueId: %d START: %.3f", ue->ctxId, (double)utils::CurrentTimeMicros()/1000);
+
     if (ue == nullptr)
         return;
 
@@ -78,6 +102,8 @@ void NgapTask::receiveContextRelease(int amfId, ASN_NGAP_UEContextReleaseCommand
 
     auto *response = asn::ngap::NewMessagePdu<ASN_NGAP_UEContextReleaseComplete>({});
     sendNgapUeAssociated(ue->ctxId, response);
+
+    m_logger->info("JK### sendContextReleaseComplete @gNB ueId: %d END: %.3f", ue->ctxId, (double)utils::CurrentTimeMicros()/1000);
 
     deleteUeContext(ue->ctxId);
 }
@@ -115,6 +141,7 @@ void NgapTask::receiveContextModification(int amfId, ASN_NGAP_UEContextModificat
 
 void NgapTask::sendContextRelease(int ueId, NgapCause cause)
 {
+    m_logger->info("JK### sendContextReleaseRequest @gNB ueId: %d START: %.3f", ueId, (double)utils::CurrentTimeMicros()/1000);
     m_logger->debug("Sending UE Context release request (NG-RAN node initiated)");
 
     auto *ieCause = asn::New<ASN_NGAP_UEContextReleaseRequest_IEs>();
@@ -125,6 +152,8 @@ void NgapTask::sendContextRelease(int ueId, NgapCause cause)
 
     auto *pdu = asn::ngap::NewMessagePdu<ASN_NGAP_UEContextReleaseRequest>({ieCause});
     sendNgapUeAssociated(ueId, pdu);
+    m_logger->info("JK### sendContextReleaseRequest @gNB ueId: %d END: %.3f", ueId, (double)utils::CurrentTimeMicros()/1000);
+    m_logger->info("JK### receiveContextReleaseCommand @gNB ueId: %d START: %.3f", ueId, (double)utils::CurrentTimeMicros()/1000);
 }
 
 } // namespace nr::gnb

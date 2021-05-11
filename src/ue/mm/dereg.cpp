@@ -11,6 +11,8 @@
 #include <ue/app/task.hpp>
 #include <ue/sm/sm.hpp>
 
+#include <utils/common.hpp> // JK
+
 namespace nr::ue
 {
 
@@ -27,6 +29,11 @@ static nas::IEDeRegistrationType MakeDeRegistrationType(EDeregCause deregCause)
 
 void NasMm::sendDeregistration(EDeregCause deregCause)
 {
+    m_logger->info("JK### sendDeregistration @ue IMSI: %s START: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
+
+
     if (m_rmState != ERmState::RM_REGISTERED)
     {
         m_logger->warn("De-registration could not be triggered. UE is already de-registered");
@@ -55,6 +62,10 @@ void NasMm::sendDeregistration(EDeregCause deregCause)
     m_lastDeregistrationRequest = std::move(request);
     m_lastDeregCause = deregCause;
     m_timers->t3521.resetExpiryCount();
+
+    m_logger->info("JK### sendDeregistration @ue IMSI: %s END: %.3f",
+                    m_base->config->supi->value.c_str(),
+                    (double)utils::CurrentTimeMicros()/1000);
 
     if (m_lastDeregistrationRequest->deRegistrationType.switchOff == nas::ESwitchOff::NORMAL_DE_REGISTRATION)
     {
